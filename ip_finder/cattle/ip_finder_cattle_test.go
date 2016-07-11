@@ -2,8 +2,8 @@ package cattle
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	rancher "github.com/rancher/go-rancher/client"
-	"log"
 	"os"
 	"testing"
 )

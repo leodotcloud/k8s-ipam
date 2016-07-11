@@ -1,9 +1,9 @@
 package cattle
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/hashicorp/golang-lru"
 	rancher "github.com/rancher/go-rancher/client"
-	"log"
 )
 
 type RancherIPFinder struct {

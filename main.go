@@ -21,17 +21,20 @@ func cmdAdd(args *skel.CmdArgs) error {
 
 	if ipamConf.LogToFile != "" {
 		f, err := os.OpenFile(ipamConf.LogToFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
+		if err == nil && f != nil {
 			log.SetOutput(f)
+			defer f.Close()
 		}
-		defer f.Close()
 	}
 
 	log.Debugf("rancher-cni-ipam: cmdAdd: invoked")
 	log.Debugf("rancher-cni-ipam: %s", fmt.Sprintf("args: %#v", args))
 	log.Debugf("rancher-cni-ipam: %s", fmt.Sprintf("ipamConf: %#v", ipamConf))
 
-	ipf := metadata.NewIPFinderFromMetadata()
+	ipf, err := metadata.NewIPFinderFromMetadata()
+	if err != nil {
+		return err
+	}
 	ipString := ipf.GetIP(args.ContainerID)
 
 	log.Debugf("rancher-cni-ipam: %s", fmt.Sprintf("ip: %#v", ipString))

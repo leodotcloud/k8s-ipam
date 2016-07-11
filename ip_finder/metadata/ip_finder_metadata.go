@@ -14,11 +14,16 @@ const (
 // IPFinderFromMetadata is used to hold information related to
 // Metadata client and other stuff.
 type IPFinderFromMetadata struct {
+	m *metadata.Client
 }
 
 // NewIPFinderFromMetadata returns a new instance of the IPFinderFromMetadata
-func NewIPFinderFromMetadata() *IPFinderFromMetadata {
-	return &IPFinderFromMetadata{}
+func NewIPFinderFromMetadata() (*IPFinderFromMetadata, error) {
+	m, err := metadata.NewClientAndWait(metadataURL)
+	if err != nil {
+		return nil, err
+	}
+	return &IPFinderFromMetadata{m}, nil
 }
 
 // GetIP returns the IP address for the given container id, return an empty string
