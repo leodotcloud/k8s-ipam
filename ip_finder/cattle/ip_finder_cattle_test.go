@@ -1,4 +1,4 @@
-package ip_finder_cattle
+package cattle
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ func TestGetIP(t *testing.T) {
 		return
 	}
 
-	log.Println("%s", fmt.Sprintf("r: +#v", r))
+	log.Printf("%s", fmt.Sprintf("r: %#v", r))
 
 	ip, err := r.GetIp(containerId)
 	if err != nil {
@@ -56,7 +56,7 @@ func TestGetIP(t *testing.T) {
 		return
 	}
 
-	log.Println("%s", fmt.Sprintf("Got IP: +#v", ip))
+	log.Printf("%s", fmt.Sprintf("Got IP: %#v", ip))
 
 	return
 }

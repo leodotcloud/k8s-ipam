@@ -1,4 +1,4 @@
-package ip_finder
+package cattle
 
 import (
 	"github.com/hashicorp/golang-lru"
@@ -81,7 +81,7 @@ func (r *RancherIPFinder) GetIp(containerId string) (string, error) {
 	}
 
 	if ipAddr != "" {
-		log.Println("Found IP %s for container %s", ipAddr, containerId)
+		log.Printf("Found IP %s for container %s", ipAddr, containerId)
 		r.cache.Add(containerId, ipAddr)
 	}
 

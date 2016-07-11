@@ -125,7 +125,7 @@ func (a *IPAllocator) Get(id string) (*types.IPConfig, error) {
 			return nil, err
 		}
 		if reserved {
-			log.Println("%s", fmt.Sprintf("cur: %#v", cur))
+			log.Printf("%s", fmt.Sprintf("cur: %#v", cur))
 			return &types.IPConfig{
 				IP:      net.IPNet{IP: cur, Mask: a.conf.Subnet.Mask},
 				Gateway: gw,
@@ -143,7 +143,7 @@ func (a *IPAllocator) Release(id string) error {
 	defer a.store.Unlock()
 
 	r := a.store.ReleaseByID(id)
-	log.Println("allocator: %s", fmt.Sprintf("r: %#r", r))
+	log.Printf("allocator: %s", fmt.Sprintf("r: %#v", r))
 
 	return r
 }

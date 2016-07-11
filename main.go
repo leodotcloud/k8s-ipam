@@ -2,44 +2,41 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/containernetworking/cni/pkg/skel"
 	"github.com/containernetworking/cni/pkg/types"
 	//"github.com/rancher/rancher-cni-ipam/fake_allocator"
 	//"github.com/rancher/rancher-cni-ipam/fake_allocator/backend/disk"
-	"github.com/rancher/rancher-cni-ipam/ip_finder"
 	"github.com/rancher/rancher-cni-ipam/ip_finder/metadata"
 )
 
-//const logFile = "/tmp/rancher-cni-ipam.log"
-const logFile = "/tmp/rancher-cni.log"
-
 func cmdAdd(args *skel.CmdArgs) error {
-	f, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-	}
-	defer f.Close()
-
-	log.SetOutput(f)
-	log.Println("rancher-cni-ipam: cmdAdd: invoked")
-	log.Println("rancher-cni-ipam: %s", fmt.Sprintf("args: %#v", args))
-
 	ipamConf, err := LoadIPAMConfig(args.StdinData, args.Args)
 	if err != nil {
 		return err
 	}
 
-	log.Println("rancher-cni-ipam: %s", fmt.Sprintf("ipamConf: %#v", ipamConf))
+	if ipamConf.LogToFile != "" {
+		f, err := os.OpenFile(ipamConf.LogToFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.SetOutput(f)
+		}
+		defer f.Close()
+	}
 
-	var ipf ip_finder.IPFinder = metadata.NewIPFinderFromMetadata()
-	ip_string := ipf.GetIP(args.ContainerID)
+	log.Debugf("rancher-cni-ipam: cmdAdd: invoked")
+	log.Debugf("rancher-cni-ipam: %s", fmt.Sprintf("args: %#v", args))
+	log.Debugf("rancher-cni-ipam: %s", fmt.Sprintf("ipamConf: %#v", ipamConf))
 
-	log.Println("rancher-cni-ipam: %s", fmt.Sprintf("ip: %#v", ip_string))
+	ipf := metadata.NewIPFinderFromMetadata()
+	ipString := ipf.GetIP(args.ContainerID)
 
-	ip, ipnet, err := net.ParseCIDR(ip_string + "/16")
+	log.Debugf("rancher-cni-ipam: %s", fmt.Sprintf("ip: %#v", ipString))
+
+	ip, ipnet, err := net.ParseCIDR(ipString + "/16")
 	if err != nil {
 		return err
 	}
@@ -51,27 +48,11 @@ func cmdAdd(args *skel.CmdArgs) error {
 		},
 	}
 
-	log.Println("rancher-cni-ipam: %s", fmt.Sprintf("r: %#v", r))
+	log.Infof("rancher-cni-ipam: %s", fmt.Sprintf("r: %#v", r))
 	return r.Print()
 }
 
 func cmdDel(args *skel.CmdArgs) error {
-	f, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-	}
-	defer f.Close()
-
-	log.SetOutput(f)
-	log.Println("rancher-cni-ipam: cmdDel: invoked")
-	log.Println("rancher-cni-ipam: %s", fmt.Sprintf("args: %#v", args))
-
-	ipamConf, err := LoadIPAMConfig(args.StdinData, args.Args)
-	if err != nil {
-		return err
-	}
-
-	log.Println("rancher-cni-ipam: %s", fmt.Sprintf("ipamConf: %#v", ipamConf))
-
 	return nil
 }
 

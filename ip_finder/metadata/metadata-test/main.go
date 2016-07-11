@@ -16,7 +16,7 @@ func main() {
 
 	logrus.Infof("cid: %v", cid)
 
-	var ipf ip_finder.IPFinder = metadata.NewIPFinderFromMetadata()
+	ipf := metadata.NewIPFinderFromMetadata()
 
 	ip := ipf.GetIP(cid)
 

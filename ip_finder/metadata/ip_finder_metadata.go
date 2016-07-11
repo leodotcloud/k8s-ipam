@@ -1,43 +1,48 @@
 package metadata
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/rancher/go-rancher-metadata/metadata"
-	"log"
 	"time"
 )
 
 const (
-	metadataUrl = "http://rancher-metadata/latest"
+	metadataURL = "http://rancher-metadata/latest"
 	empty       = ""
 )
 
+// IPFinderFromMetadata is used to hold information related to
+// Metadata client and other stuff.
 type IPFinderFromMetadata struct {
 }
 
+// NewIPFinderFromMetadata returns a new instance of the IPFinderFromMetadata
 func NewIPFinderFromMetadata() *IPFinderFromMetadata {
 	return &IPFinderFromMetadata{}
 }
 
+// GetIP returns the IP address for the given container id, return an empty string
+// if not found
 func (ipf *IPFinderFromMetadata) GetIP(cid string) string {
 
-	m := metadata.NewClient(metadataUrl)
+	m := metadata.NewClient(metadataURL)
 
 	for i := 0; i < 600; i++ {
 		containers, err := m.GetContainers()
 		if err != nil {
-			log.Println("rancher-cni-ipam: Error getting metadata containers: %v", err)
+			log.Errorf("rancher-cni-ipam: Error getting metadata containers: %v", err)
 			return empty
 		}
 
 		for _, container := range containers {
 			if container.ExternalId == cid {
-				log.Println("rancher-cni-ipam: got ip: %v", container.PrimaryIp)
+				log.Infof("rancher-cni-ipam: got ip: %v", container.PrimaryIp)
 				return container.PrimaryIp
 			}
 		}
-		log.Println("Waiting to find IP for container: %s", cid)
+		log.Infof("Waiting to find IP for container: %s", cid)
 		time.Sleep(500 * time.Millisecond)
 	}
-	log.Println("ip not found for cid: %v", cid)
+	log.Infof("ip not found for cid: %v", cid)
 	return empty
 }
